@@ -1,21 +1,43 @@
+---
+title: "Observations on index2017 Dataset"
+author: "Arman Zakaryan"
+date: "September 17, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
 econ_data <- read.csv('index2017.csv')
-summary(econ_data)
-colnames(econ_data)
-library(ggplot2) 
-#Judical Effectiveness
+```
+
+## 1. Judical Effectiveness is positively correlated with Government Integrity
+```{r warning=FALSE}
 ggplot(data = econ_data, aes(x = econ_data$Judical.Effectiveness, y = econ_data$Government.Integrity)) +
   geom_smooth(method = "lm", color="red") +
   geom_point()+labs(title = "Judical Effectiveness and Government Integrity", x="Judical Effectiveness",
                     y='Government Integrity')
+```
 
-#Government Integrity and Spending
+## 2. Government Integrity is negatively correlated with Government Spendings
+
+
+```{r pressure, warning=FALSE}
 ggplot(data = econ_data, aes(x = econ_data$Government.Integrity, y = econ_data$Gov.t.Spending)) +
   geom_smooth(method = "lm", color="red") +
-  geom_point()+labs(title = "Judical Effectiveness and Government Integrity", x="Judical Effectiveness",
-                    y='Government Integrity')
+  geom_point()+labs(title = "Government Integrity and Government Spendings", x="Government Integrity",
+                    y='Government Spendings')
+```
 
-#Government Integrity and Spending
+## 3. Unemployment and Labor Freedom are uncorrelated
+
+
+```{r warning=FALSE}
 ggplot(data = econ_data, aes(x = econ_data$Unemployment, y = econ_data$Labor.Freedom)) +
   geom_smooth(method = "lm", color="red") +
   geom_point()+labs(title = "Unemployment and Labor Freedom", x="Labor Freedom",
                     y='Unemployment')
+```
+
+
