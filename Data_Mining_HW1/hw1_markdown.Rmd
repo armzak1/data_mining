@@ -106,12 +106,12 @@ length(boxpltres$out)
 
 
 ```{r }
-df <- df[df$Price<min(boxpltres$out),]
+df <- df[df$Price>=boxpltres$stats[1] & df$Price<=boxpltres$stats[5],]
 dim(df)
 
 
 boxpltres2 <- boxplot(df$Max.Price, main='Boxplot of Max Price', ylab='Price')
-df <- df[df$Max.Price<min(boxpltres2$out),]
+df <- df[df$Max.Price>=boxpltres2$stats[1] & df$Max.Price<=boxpltres2$stats[5],]
 dim(df)
 ```
 
