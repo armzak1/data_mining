@@ -1,55 +1,111 @@
-#ex.1
+---
+title: "Data Mining Homework 1"
+author: "Arman Zakaryan"
+date: "September 30, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Problem 1
+
+
+```{r cars}
 load(file = 'Cars93.rda')
 dim(df)
+```
 
-#ex.2
-#View(head(df, n=5))
+## Problem 2
+
+
+```{r }
 head(df, n=5)
+```
 
-#ex.3
-df[which.max(df$Max.Price),]
-df[which.max(df$Min.Price),]
+## Problem 3
 
-#ex.4
+
+```{r }
+df[which.max(df$Max.Price),c(2,3)]
+df[which.min(df$Min.Price),c(2,3)]
+```
+
+## Problem 4
+
+The class choice is not ideal, so we can change it to factor with the following layers:
+
+```{r }
 class(df$Origin)
-df$Origin <- factor(df$Origin,labels=c(0,1))
-#TOBECHANGED
+df$Origin <- factor(df$Origin,labels=c('non-USA','USA'))
+```
 
-#ex.5
+## Problem 5
+
+
+```{r }
 class(df$Type)
 df$Type
-#IS FACTOR AND IS ORDINAL
+```
+So the class is $factor$ and the variable is ordinal, because it indicates the size of given car (sort of a quantitative measure).
 
-#ex.6
+
+## Problem 6
+
+Here we observe a positive relationship
+```{r }
 set.seed(1)
 df_small <- df[sample(nrow(df),50),]
 plot(x=df_small$EngineSize, y=df_small$Price, 
      main='Scatterplot of Engine Size and Price',
      xlab='Engine Size', ylab='Price')
-#POSITIVE CORRELATION
+```
 
-#ex.7
+## Problem 7
+
+Here we see a negative relationship
+```{r }
 plot(x=df_small$MPG.city, y=df_small$Price, 
      main='Scatterplot of MPG in City and Price',
      xlab='MPG in City', ylab='Price')
-#negative correlation
+```
 
-#ex.8
+## Problem 8
+
+
+```{r }
 plot(x=df_small$Origin, 
      main='Bar Graph of Origin',
      xlab='Origin')
-#slighly more non US cars
+```
 
-#ex.9
+Slightly more non-USA cars.
+
+
+## Problem 9
+
+The most appropriate graph to represent the distribution is histogram. It shows the frequency of each range of values in the dataset.
+The higher "bars" rise, the higher is frequency.
+
+```{r }
 hist(df$Price, main='Histogram of Prices', breaks=10,
      xlab='Price', ylab='Number of Cars')
-#histogram shows info about frequency of each price range in df(i.e. distribution)
+```
 
-#ex.10
+## Problem 10
+
+Boxplot is a good graph to explore the outliers. Any data point past whiskers will be considered an outlier.
+
+```{r }
 boxpltres <- boxplot(df$Price, main='Boxplot of Price', ylab='Price')
 length(boxpltres$out)
+```
 
-#ex.11
+## Problem 11
+
+
+```{r }
 df <- df[df$Price<min(boxpltres$out),]
 dim(df)
 
@@ -57,15 +113,31 @@ dim(df)
 boxpltres2 <- boxplot(df$Max.Price, main='Boxplot of Max Price', ylab='Price')
 df <- df[df$Max.Price<min(boxpltres2$out),]
 dim(df)
-#5 observations omitted as they were outliers by price and/or max price
+```
 
-#ex.12
+5 observations have been omitted, as they were outliers by either Price or Max.Price or both.
+
+
+## Problem 12
+
+
+```{r }
 aggregate(df$Luggage.room~df$Manufacturer, data = df, mean)
+```
 
-#ex.13
+
+## Problem 13
+
+
+```{r }
 aggregate(df$Max.Price~df$Manufacturer, data=df, max)
+```
 
-#ex.14
+
+## Problem 14
+
+
+```{r }
 library(ggplot2)
 mymidwest <- midwest
 p <- ggplot(mymidwest,aes(x=mymidwest$poptotal, 
@@ -75,12 +147,26 @@ p <- ggplot(mymidwest,aes(x=mymidwest$poptotal,
        title = 'Scatterplot of Total Population and Area', 
        color='Color by States')
 
-#ex.15
-p+facet_grid(mymidwest$state~.)
-#ADD LABELS
+p
+```
 
-#ex.16
-#TBD
+
+## Problem 15
+
+
+```{r }
+p+facet_grid(mymidwest$state~.)
+```
+
+
+## Problem 16
+
+Interesting finds:
+1. Percentage of College Educated People is positively correlated with Perentage of people with Profession.
+2. Percentage of Black people is positively correlated with percentage of people living below poverty.
+
+
+```{r }
 
 ggplot(mymidwest,aes(x=mymidwest$percprof, 
                      y=mymidwest$percollege))+
@@ -95,22 +181,54 @@ ggplot(mymidwest,aes(x=mymidwest$percblack,
        title = 'Scatterplot of Percentages of Black People and People Below Poverty')
   
 
-#ex.17
+```
+
+
+The choice of both is intition and a little exploration of the Correlation Matrix.
+
+
+## Problem 17
+
+The graph below looks fuzzy, with a hint of negative relationship.
+Intuition would make me expect not-so-strong correlation, as in my opinion college provides enough background not to end up in poverty, but arguably not sufficient enough. 
+
+```{r }
 ggplot(mymidwest,aes(x=mymidwest$percollege, 
                      y=mymidwest$percpovertyknown))+
   geom_point()+
   labs(x='Percentage of C.E.P', y='Known Percentage of Poverty', 
        title = 'Scatterplot of Percentages of CEP and Poverty')
 
-#ex.18
+```
+
+
+## Problem 18
+
+
+```{r }
 cor(mymidwest$percollege, mymidwest$percpovertyknown)
 
-#ex.19
+```
+
+Yes!
+
+
+## Problem 19
+
+Signs show the nature of relationships between one another. Positive is the variables moving in one direction, negative means the opposite.
+
+```{r }
 num_midwest <- mymidwest[,4:13]
 cor(num_midwest)
+```
 
-#ex.20
+The most correlated ones are $poptotal$ and $popwhite$ (DUH).
+
+## Problem 20
+
+
+```{r }
 library(corrplot)
 midwestcor <- mymidwest[,c(-2,-3,-ncol(mymidwest))]
-View(midwestcor)
 corrplot(cor(midwestcor), method = 'shade')
+```
