@@ -39,6 +39,8 @@ The class choice is not ideal, so we can change it to factor with the following 
 ```{r }
 class(df$Origin)
 df$Origin <- factor(df$Origin,labels=c('non-USA','USA'))
+head(df)
+class(df$Origin)
 ```
 
 ## Problem 5
