@@ -8,7 +8,7 @@ head(df, n=5)
 
 #ex.3
 df[which.max(df$Max.Price),]
-df[which.max(df$Min.Price),]
+df[which.min(df$Min.Price),]
 
 #ex.4
 class(df$Origin)
