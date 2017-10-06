@@ -50,7 +50,7 @@ class(df$Origin)
 class(df$Type)
 df$Type
 ```
-So the class is $factor$ and the variable is ordinal, because it's possible values are ordered.
+So the class is $factor$ and the variable is ordinal, because it indicates the size of given car (sort of a quantitative measure).
 
 
 ## Problem 6
