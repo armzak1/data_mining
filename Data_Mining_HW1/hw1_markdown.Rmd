@@ -68,7 +68,7 @@ plot(x=df_small$EngineSize, y=df_small$Price,
 
 Here we see a negative relationship
 ```{r }
-plot(x=df_small$MPG.city, y=df_small$Price, 
+plot(x=df$MPG.city, y=df$Price, 
      main='Scatterplot of MPG in City and Price',
      xlab='MPG in City', ylab='Price')
 ```
@@ -77,12 +77,12 @@ plot(x=df_small$MPG.city, y=df_small$Price,
 
 
 ```{r }
-plot(x=df_small$Origin, 
+plot(x=df$Origin, 
      main='Bar Graph of Origin',
      xlab='Origin')
 ```
 
-Slightly more non-USA cars.
+Slightly more USA cars.
 
 
 ## Problem 9
