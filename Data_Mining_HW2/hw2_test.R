@@ -57,6 +57,7 @@ am_test <- autompg[-train_ind,]
 
 #P.9  
 cor(autompg[,1:7])
+plot(x=autompg$mpg, y=autompg$weight)
 #first: weight, second: displacement
 
 #P.10
