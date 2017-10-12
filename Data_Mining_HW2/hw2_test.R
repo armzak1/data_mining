@@ -15,7 +15,7 @@ summary(armdata$vote)
 voted <- armdata$vote!='abstain' 
 table(armdata$importantvote,voted)
 chisq_res <- chisq.test(table(armdata$importantvote,voted))
-chisq_res
+chisq_res$p.value
 
 #null hyp - voting doesn't depend on importance
 #probably reject because of 0 p value, to be edited
@@ -23,7 +23,7 @@ chisq_res
 #P.4
 class(armdata$armpres)
 tbl <- table(armdata$armpres, armdata$vote)
-chisq.test(tbl)
+chisq.test(tbl)$p.value
 
 #null hyp - voting pattern is independent from president
 #reject, as p value is 0. 
@@ -37,8 +37,9 @@ table(subs[,c('issue', 'vote')])
 #P.6
 library(HistData)
 df <- GaltonFamilies
-regr_data3 <- t.test(childHeight~gender, data=df)
-regr_data3
+tt <- t.test(childHeight~gender, data=df)
+tt$p.value
+
 #null hyp - means of samples from two groups are independent
 #reject, as p value is 0
 
@@ -85,6 +86,7 @@ am_pred2 <- predict(regr_model2, newdata=am_test)
 sqrt(mean((am_pred2-am_test$mpg)^2))
 
 #P.12
+head(autompg$displacement)
 regr_model <- lm(formula = mpg~weight+model.year, data=am_train)
 am_test_pred <- predict(regr_model, newdata=am_test)
 sqrt(mean((am_test_pred-am_test$mpg)^2))

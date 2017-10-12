@@ -67,8 +67,10 @@ Null Hypothesis: Mean height of male children isn't that different from the mean
 library(HistData)
 df <- GaltonFamilies
 t.test(childHeight~gender, data=df)
+t.test(childHeight~gender, data=df)$p.value
+
 ```
-Again, because of 0 $p$ value, I'll reject the Null Hypothesis.
+Again, because of extremely small $p$ value, I'll reject the Null Hypothesis.
 
 ### Problem 7
 
