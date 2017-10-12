@@ -1,0 +1,152 @@
+---
+title: "Data Mining Homework 2"
+author: "Arman Zakaryan"
+date: "October 12, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Problem 1
+```{r }
+load(file = 'UN_Armenia.rda')
+str(armdata)
+summary(armdata)
+armdata$amend <- NULL
+armdata$para <- NULL
+```
+
+### Problem 2
+```{r }
+class(armdata$vote)
+levels(armdata$vote)
+summary(armdata$vote)
+```
+As we can see, class is 'factor' and levels are ('yes', 'no' 'abstain')
+
+### Problem 3
+
+Common sense tells me that voting behaviour depends on the importance of the issue.
+As both variables are categorical, I'll use Chi-Square test for independence.
+Null Hypothesis: Voting does not depend on the importance of the issue.
+```{r }
+voted <- armdata$vote!='abstain' 
+table(armdata$importantvote,voted)
+chisq.test(table(armdata$importantvote,voted))
+```
+Because of 0 $p$ value, I'll reject the Null Hypothesis.
+
+### Problem 4
+
+Again, common sense tells me that each president probably had/has a different voting behaviour. 
+Here too, I'll use Chi-Square test to find that out.
+Null Hypothesis: Voting behaviour doesn't depend on the president at the time of voting.
+```{r }
+class(armdata$armpres)
+tbl <- table(armdata$armpres, armdata$vote)
+chisq.test(tbl)
+```
+Because of 0 $p$ value, I'll reject the Null Hypothesis.
+
+### Problem 5
+```{r }
+subs <- armdata[armdata$country=='Armenia',]
+table(subs[,c('issue', 'vote')])
+```
+
+### Problem 6
+
+Biologically speaking, the height of a person does depend on its gender. Let's find out if that's true for this dataset.
+
+Here we are dealing with one categorical and one numerical variable, so a T-test would be most appropriate.
+Null Hypothesis: Mean height of male children isn't that different from the mean female children height (in other words, height does not depend on the gender of children).
+
+```{r }
+library(HistData)
+df <- GaltonFamilies
+t.test(childHeight~gender, data=df)
+```
+Again, because of 0 $p$ value, I'll reject the Null Hypothesis.
+
+### Problem 7
+
+Having a factor with 94 levels doesn't seem reasonable. I'd rather have that data with numeric type. And a more appropriate type for origin would be factor, as it's a categorical variable.
+```{r }
+autompg <- read.csv('auto-mpg.csv')
+str(autompg)
+autompg$horsepower <- as.numeric(levels(autompg$horsepower))[autompg$horsepower]
+autompg$origin <- as.factor(autompg$origin)
+```
+
+### Problem 8
+```{r }
+set.seed(1)
+train_ind <- sample(nrow(autompg),as.integer(0.7*nrow(autompg)))
+am_train <- autompg[train_ind,]
+am_test <- autompg[-train_ind,]
+```
+
+
+### Problem 9
+```{r }
+cor(autompg[,1:7])
+plot(x=autompg$weight, y=autompg$mpg)
+```
+The most correlated variable is $weight$, and from the correlation coefficient and the scatterplot, its obvious that these two variables have a negative relationship.
+
+### Problem 10
+```{r }
+max(autompg$mpg)
+regr_data_mw <- lm(formula = mpg~weight, data=autompg)
+regr_data_mw$coefficients
+```
+The slope (-0.00767661), indicates that the two variables have negative relationship, and for each $weight$ unit change, $mpg$ changes -0.00767661 times (disregarding the intercept).
+The intercept indicates that for the lowest possible $weight$ in our dataset, we'll have an $mpg$ of something (around) 46.31736442 (that's where the regression line intersects the $mpg$ axis).
+
+```{r }
+summary(regr_data_mw)$adj.r.squared
+regr_model <- lm(formula = mpg~weight, data=am_train)
+am_pred <- predict(regr_model, newdata=am_test)
+sqrt(mean((am_pred-am_test$mpg)^2))
+```
+RMSE is an indicator of how effective our model is. It basically shows the error that our model made compared to the ground truth. The lower its value, the better our model.
+
+### Problem 11
+
+Second most correlated variable is $displacement$.
+
+```{r }
+regr_data_md <- lm(formula = mpg~displacement, data=autompg)
+regr_data_md$coefficients
+```
+The slope (-0.06028241), indicates that the two variables have negative relationship, and for each $displacement$ unit change, $mpg$ changes -0.06028241 times (disregarding the intercept).
+The intercept indicates that for the lowest possible $displacement$ in our dataset, we'll have an $mpg$ of something (around) 35.17475015. (that's where the regression line intersects the $mpg$ axis).
+
+```{r }
+summary(regr_data_md)$adj.r.squared
+regr_model2 <- lm(formula = mpg~displacement, data=am_train)
+am_pred2 <- predict(regr_model2, newdata=am_test)
+sqrt(mean((am_pred2-am_test$mpg)^2))
+
+```
+
+### Problem 12
+
+After observing the correlation matrix, I decided to add the variable $model.year$ to the first linear model.
+```{r }
+regr_model <- lm(formula = mpg~weight+model.year, data=am_train)
+am_test_pred <- predict(regr_model, newdata=am_test)
+sqrt(mean((am_test_pred-am_test$mpg)^2))
+
+```
+As we can see, the result has improved.
+
+```{r }
+am_train_pred <- predict(regr_model, newdata = am_train)
+sqrt(mean((am_train_pred-am_train$mpg)^2))
+
+```
+
+RMSE's are pretty close to each other, so most probably no underfitting or overfitting took place.
