@@ -1,0 +1,81 @@
+---
+title: "Data Mining HW4"
+author: "Arman Zakaryan"
+date: "October 23, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1
+
+```{r}
+df <- read.csv('Diabetes.csv')
+df$Class <- factor(df$Class, levels=c(0,1), labels=c('No','Yes'))
+table(df$Class)
+```
+
+## Problem 2
+
+```{r}
+
+library(caret)
+set.seed(1)
+training_ind <- createDataPartition(df$Class, p=0.7, list=FALSE)
+df_train <- df[training_ind,]
+df_test <- df[-training_ind,]
+
+```
+
+## Problem 3
+
+```{r}
+model <- glm(Class~., data = df_train, family = 'binomial')
+summary(model)
+exp(model$coefficients)
+```
+Basically, the coefficients in the model are the logarithms of the odds. By taking the exponent of it, we get the actual odds, which can be interpreted as follows: One unit increase in NTS will increase the odds of having diabetes by a factor of 1.127, and One unit increase in DBP will 'increase' the odds of having diabetes by a factor of 0.98 (in reality the odds will decrease as 0.98n<n for any n>0).
+
+
+## Problem 4
+
+```{r}
+
+df_predict <- predict(model, newdata = df_test)
+prclass <- ifelse(df_predict>0.5, 'Yes', 'No')
+tb <- table(df_test$Class,prclass)
+tb
+
+```
+True Negatives: 134 (the count of true entries in test dataset which model predicted as true), True Positives: 42 (the count of false entries in test dataset which model predicted as false), False Positive: 16 (the number of false entries in test dataset which model predicted as true), False Negative 38 (the number of true entries in test dataset which model predicted as false).
+
+## Problem 5
+
+```{r}
+
+overall_acc <- (42+134)/(134+16+38+42)
+sensitivity <- (42)/(42+38)
+specificity <- (134)/(134+16)
+ppv <- (42)/(42+16)
+npv <- (134)/(134+38)
+cm <- caret::confusionMatrix(prclass, df_test$Class, positive='Yes')
+cm
+library(ROCR)
+p_test <- prediction(df_predict, df_test$Class)
+perf <- performance(p_test,'tpr','fpr')
+plot(perf)
+performance(p_test, 'auc')@y.values
+```
+
+Overall accuracy is self explanatory, shows how accurate is our model on our testing dataset (what percentage of entries were predicted correctly).
+Sensitivity shows the percentage of positive class to be actually predicted correctly.
+Specificity shows the percentage of negative class to be actually predicted correctly.
+PPV shows the the prob of entry being positive in case we predict positive
+NPV shows the prob of entry being negative in case we predict negative.
+
+A good model can be considered the one where false positives dominate over false negatives (saying to a healthy person that he has diabetes is 'better' than vice-versa). In other words having higher sensitivity.
+
+ROC curve visualizes the tradeoff sensitivity and specifity of model. The closer it is to the straight line y=x the worse our model. Luckily in this case, it is considerably far from that line, which is an indicator of a good model.
+AUC is the area under this curve, which is kind of a grade for our model. 0.802 is considered a good model. 
