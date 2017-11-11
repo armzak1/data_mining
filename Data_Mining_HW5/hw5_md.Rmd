@@ -1,0 +1,93 @@
+---
+title: "Data Mining HW5"
+author: "Arman Zakaryan"
+date: "November 11, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Problem 1
+
+There is no special "encoding" (i.e. headers etc.) that differentiates .csv from .txt. CSV is simply comma separated values, and even though the input has .txt format, info inside can still be processed as a simple .csv. R does not care about the actual format of the file its reading. If the structure follows the pattern of .csv, R will parse it as .csv. So our traditional read.csv will do just fine in this case. In case of different formatting, we could've used read.table or read.delim.
+
+```{r}
+df_train <- read.csv('roomtrain.txt')
+df_test <- read.csv('roomtest.txt')
+```
+
+##Problem 2
+
+```{r}
+df_train$date <- NULL
+df_test$date <- NULL
+df_train$Occupancy <- factor(df_train$Occupancy, levels=c(0,1), labels=c('No', 'Yes'))
+df_test$Occupancy <- factor(df_test$Occupancy, levels=c(0,1), labels=c('No', 'Yes'))
+```
+
+##Problem 3
+
+```{r}
+library(class)
+df_train_sc <- scale(df_train[,1:5], scale=T, center=T)
+df_test_sc <- scale(df_test[,1:5], scale=T, center=T)
+knn_res <- knn(df_train_sc, df_test_sc, df_train[,6], k=5, prob=TRUE)
+summary(knn_res)
+```
+
+##Problem 4
+
+```{r}
+table(df_test[,6], knn_res)
+overall_acc <- (1648+912)/(1648+45+60+912)
+mean_acc <- mean(knn_res==df_test[,6])
+overall_acc
+mean_acc
+```
+
+##Problem 5
+
+```{r}
+prob_tb <- data.frame(class = knn_res, probs = (attr(knn_res, 'prob')))
+head(prob_tb)
+```
+
+##Problem 6
+
+```{r}
+probs <- prob_tb$probs
+probs[(probs)<1]
+```
+We took number of neightbours to be 5. These probabilities say the following: 3 or 4 of the 5 neighbours have the same class (3/5=0.6, 4/5=0.8 respectively). In general, they show the percentage of neighbours that belong to the class, which dominates among neighbours.
+
+
+##Problem 7
+
+```{r}
+library(caret)
+set.seed(1)
+ctrl <- trainControl(method='cv', number=10)
+knn_cv <- train(Occupancy~., data = df_train, method = 'knn', trControl = ctrl, preProcess = c('center','scale'),
+                tuneLength=10)
+plot(knn_cv)
+knn_cv$results
+```
+k=7 marginally outperforms other values of k.
+
+##Problem 8
+
+Link to the paper describing the method: https://pdfs.semanticscholar.org/604b/32f6aac14f23b786e4da561af9cea766c3d3.pdf
+
+This method contains heavy statistical notions, so I'll try to describe at as comprehensively as possible, without using statistical concepts.
+
+Basically, for each k, we compute a score for that k. The higher that score, the better that k will perform.
+
+The score function itself, relies on the Bayesian measure of strength for different populations. That strength function is nothing else but the integral of the conditional distribution function of what is denoted in the paper as 'p', given k and the count of each class representatives in the k-neighbourhood of the data point. This 'p' is the vector of probabilities of our data point belonging to any of the given classes.
+
+This is different from the conventional knn, because here we assume a prior distribution of probabilities instead of taking them constants. In this paper, they choose it to be a uniform distribution, in order to avoid any bias towards any of the classes.
+
+
+Another method, which is kind of similar to our cross validation, is to try with tuning distance metrics and giving weights to each neigbour from different distributions. As our data is small enough, we can use GridSearch to land on the optimal k value, but according to the author of the above paper, their method is more robust than the simple GridSearch.
+

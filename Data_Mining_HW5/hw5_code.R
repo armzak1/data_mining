@@ -39,3 +39,5 @@ knn_cv <- train(Occupancy~., data = df_train, method = 'knn', trControl = ctrl, 
 plot(knn_cv)
 knn_cv$results
 #7,8,9
+
+
