@@ -1,0 +1,97 @@
+---
+title: "Data Mining HW6"
+author: "Arman Zakaryan"
+date: "November 27, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Problem 1
+```{r}
+load('ebay_train.rda')
+load('ebay_test.rda')
+ebay_train$Category <- NULL
+ebay_test$Category <- NULL
+library(rpart)
+model <- rpart(Competitive~., data=ebay_train)
+library(rpart.plot)
+prp(model, type=1, extra=1, tweak=1.2)
+
+```
+##Problem 2
+
+If ClosePrice is less than 3.7. it classifies the observations as 'More'.
+Each number inside the nodes show how many observations of each class are inside that node.
+
+##Problem 3
+
+```{r}
+set.seed(1)
+pred <- predict(model,ebay_test,type='class')
+library(caret)
+cm <- confusionMatrix(pred, ebay_test$Competitive, positive='Single')
+cm$table
+cm$overall[1]
+```
+
+##Problem 4
+
+```{r}
+library(ROCR)
+pred <- predict(model,ebay_test,type='prob')
+p_test <- prediction(pred[,1],ebay_test$Competitive)
+perf <- performance(p_test,'tpr','fpr')
+plot(perf)
+performance(p_test, 'auc')@y.values
+
+```
+
+
+
+##Problem 5
+```{r}
+library(randomForest)
+set.seed(1)
+model_rf <- randomForest(Competitive~., data=ebay_train, 
+                         ntree=50)
+
+varImp(model_rf)
+```
+
+From the above table we see that the most important variable is ClosePrice.
+
+##Problem 6
+```{r}
+set.seed(1)
+pred_rf <- predict(model_rf,ebay_test,type='class')
+library(caret)
+cm <- confusionMatrix(pred_rf, ebay_test$Competitive, positive='Single')
+cm$table
+cm$overall[1]
+```
+
+##Problem 7
+```{r}
+pred_rf <- predict(model_rf,ebay_test,type='prob')
+p_test <- prediction(pred_rf[,1],ebay_test$Competitive)
+perf <- performance(p_test,'tpr','fpr')
+plot(perf)
+performance(p_test, 'auc')@y.values
+```
+
+Random forest model slightly outperformed simple Decision tree model with AUC.
+
+##Problem 8
+
+First Rect: 1 - (1/3)^2 - (2/3)^2 = 0.4444
+Second Rect: 1 - (1/2)^2 - (1/2)^2 = 0.5
+Third Rect: 1 - (6/7)^2 - (1/7)^2 = 0.24
+Fourth Rect: 1 - (4/17)^2 - (13/17)^2 = 0.35
+
+Gini index is a measure of impurity. Basically it shows the probability of a randomly chosen element from the set to be misclassified if it was labeled randomly with a label from the distribution of labels in subset.
+
+For binary classification problems, the minimum value is obtained when all the elements belong to the same class and the maximum (0.5) is obtained when there are equal amount of elements from each class.
+
